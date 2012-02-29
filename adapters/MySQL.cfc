@@ -1,25 +1,28 @@
 /**
 * Abstract Database Adapter
 */
-component extends="AbstractAdapter"{
+component accessors="true" extends="AbstractAdapter"{
 
 	// PSEUDO STATIC TYPES
-	this.SQLTYPES = {};
-	this.SQLTYPES['BINARY'] = {name='BLOB'};
-	this.SQLTYPES['BOOLEAN'] = {name='TINYINT',limit=1};
-	this.SQLTYPES['DATE'] = {name='DATE'};
-	this.SQLTYPES['DATETIME'] = {name='DATETIME'};
-	this.SQLTYPES['DECIMAL'] = {name='DECIMAL'};
-	this.SQLTYPES['FLOAT'] = {name='FLOAT'};
-	this.SQLTYPES['INTEGER'] = {name='INT'};
-	this.SQLTYPES['STRING'] = {name='VARCHAR',limit=255};
-	this.SQLTYPES['TEXT'] = {name='TEXT'};
-	this.SQLTYPES['TIME'] = {name='TIME'};
-	this.SQLTYPES['TIMESTAMP'] = {name='DATETIME'};
+	this.SQLTYPES = {
+		"BINARY" 	= {name='BLOB'},
+		"BOOLEAN" 	= {name='TINYINT',limit=1},
+		"DATE" 		= {name='DATE'},
+		"DATETIME" 	= {name='DATETIME'},
+		"DECIMAL" 	= {name='DECIMAL'},
+		"FLOAT" 	= {name='FLOAT'},
+		"INTEGER" 	= {name='INT'},
+		"STRING" 	= {name='VARCHAR',limit=255},
+		"TEXT" 		= {name='TEXT'},
+		"TIME" 		= {name='TIME'},
+		"TIMESTAMP" = {name='DATETIME'}
+	}
 
-	<cffunction name="adapterName" returntype="string" access="public" hint="name of database adapter">
-		<cfreturn "MySQL">
-	</cffunction>
+	// Constructor
+	MySQL function init(){
+		super.init("MySQL");
+		return this;
+	}
 
 	<cffunction name="addPrimaryKeyOptions" returntype="string" access="public">
 		<cfargument name="sql" type="string" required="true" hint="column definition sql">
@@ -69,11 +72,23 @@ component extends="AbstractAdapter"{
 		<cfreturn "ALTER TABLE #quoteTableName(LCase(arguments.name))# CHANGE COLUMN #quoteColumnName(arguments.columnName)# #quoteColumnName(arguments.newColumnName)# #$getColumnDefinition(tableName=arguments.name,columnName=arguments.columnName)#">
 	</cffunction>
 
-	<!--- MySQL requires table name as well as index name --->
-	<cffunction name="removeIndex" returntype="string" access="public" hint="generates sql to remove a database index">
-		<cfargument name="table" type="string" required="true" hint="table name">
-		<cfargument name="indexName" type="string" required="false" default="" hint="index name">
-		<cfreturn "DROP INDEX #quoteTableName(arguments.indexName)# ON #quoteTableName(arguments.table)#">
-	</cffunction>
+	/**
+	* Rename column
+	* @name.hint Name of table
+	* @column.hint Name of column to rename
+	* @newColumn.hint The name of the new column
+	*/
+	function renameColumn(required name, required column, required newColumn){
+		return "ALTER TABLE #quoteTableName(arguments.name)# CHANGE COLUMN #quoteColumnName(arguments.column)# #quoteColumnName(arguments.newColumn)# #dbinfo.getColumnDefinition(table=arguments.name,column=arguments.column)#">
+	}
+
+	/**
+	* Remove a database index
+	* @table.hint The table name
+	* @indexName.hint The name of the index
+	*/
+	function removeIndex(required table, required indexName){
+		return "DROP INDEX #quoteTableName( arguments.indexName )# ON #quoteTableName( arguments.table )#";
+	}
 
 }

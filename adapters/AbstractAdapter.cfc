@@ -1,5 +1,20 @@
-<cfcomponent>
-	<cfinclude template="../basefunctions.cfm">
+component accessors="true" implements="IAdapter"{
+
+	/**
+	* The name of the adapter
+	*/
+	property name="adapterName" type="string";
+
+	/**
+	* Our db info helper
+	*/
+	property name="dbInfo";
+
+	// Constructor
+	AbstractAdapter function init(required string name){
+		adapterName = arguments.name;
+		return this;
+	}
 
 	<cffunction name="typeToSQL" returntype="string">
 		<cfargument name="type" type="string" required="true" hint="column type">
@@ -246,4 +261,4 @@
 		<cfreturn "DROP INDEX #quoteTableName(arguments.indexName)#">
 	</cffunction>
 
-</cfcomponent>
+}
